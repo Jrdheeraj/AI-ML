@@ -1,0 +1,1 @@
+This repository is a personal collection of all my AI and ML learning code and basic projects. It includes practice implementations of core algorithms, small experiments, and mini‑projects that I build while exploring different topics in machine learning and artificial intelligence.
