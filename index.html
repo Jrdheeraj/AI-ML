@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KNN Algorithm - Interactive Seminar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .doubt-section {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.doubt-bg {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;              /* full screen height */
+  background-image: url("pictures/tonystark.jpg"); /* image in same folder as this HTML */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.doubt-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45); /* dark overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doubt-overlay h2 {
+  color: #ffffff;
+  font-size: 3.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+
+        :root {
+            --primary: #2196F3;
+            --secondary: #FF6B6B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --dark: #1a1a2e;
+            --light: #f5f7fa;
+            --accent: #00d4ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+       nav {
+    background: rgba(26, 26, 46, 0.95);
+    padding: 15px 30px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 18px;              /* slightly smaller gap */
+    justify-content: center;
+    flex-wrap: nowrap;      /* do NOT wrap to next line */
+    white-space: nowrap;    /* keep text in one line */
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 6px 10px;      /* a bit smaller to fit everything */
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+nav a:hover {
+    background: var(--accent);
+    color: var(--dark);
+    transform: translateY(-2px);
+}
+
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 0 20px;
+        }
+
+        /* Section Styling */
+        section {
+            background: white;
+            margin: 30px 0;
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.6s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+        }
+
+        p {
+            font-size: 1.05em;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            text-align: center;
+            padding: 80px 40px !important;
+            border-radius: 15px;
+            margin-top: 0;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero h1 {
+            color: white;
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .hero p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3em;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content Cards */
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            font-size: 1.05em;
+        }
+
+        /* Algorithm Box */
+        .algorithm-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.8;
+        }
+
+        .algorithm-box strong {
+            color: var(--accent);
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: #f0f4ff;
+            border: 3px solid var(--primary);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 1.15em;
+            font-family: 'Arial', sans-serif;
+            line-height: 2;
+        }
+
+        .formula-title {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .formula {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Visualization Box */
+        .viz-box {
+            background: #f9f9f9;
+            border: 2px dashed var(--primary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .viz-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Advantage/Disadvantage Boxes */
+        .advantage-box {
+            background: #e8f5e9;
+            border-left: 5px solid var(--success);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .disadvantage-box {
+            background: #ffebee;
+            border-left: 5px solid var(--secondary);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .advantage-box strong, .disadvantage-box strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .advantage-box strong {
+            color: var(--success);
+        }
+
+        .disadvantage-box strong {
+            color: var(--secondary);
+        }
+
+        /* Code Box */
+        .code-box {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* Doubt Section */
+        .doubt-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 60px 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .doubt-section h2 {
+            color: white;
+            border-bottom-color: var(--accent);
+        }
+
+        .doubt-image {
+            max-width: 400px;
+            height: auto;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Comparison Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Interactive Elements */
+        .interactive-demo {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .demo-canvas {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            background: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 120px;
+            }
+
+            section {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .hero h1 {
+                font-size: 2em;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            nav a {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .scroll-top.show {
+            opacity: 1;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#intuition">Intuition</a></li>
+            <li><a href="#algorithm">Algorithm</a></li>
+            <li><a href="#distance">Distance Metrics</a></li>
+            <li><a href="#choosing-k">Choosing K</a></li>
+            <li><a href="#advantages">Advantages</a></li>
+            <li><a href="#disadvantages">Disadvantages</a></li>
+            <li><a href="#applications">Applications</a></li>
+            <li><a href="#practice">Practice</a></li>
+            <li><a href="#qa">Q&A</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <h1>🎯 K-Nearest Neighbors Algorithm</h1>
+            <p>An Interactive Seminar on KNN in Machine Learning</p>
+            <p style="margin-top: 20px; font-size: 0.95em;">A comprehensive guide to understanding one of the simplest yet powerful supervised learning algorithms</p>
+        </section>
+
+        <!-- Introduction -->
+        <section id="introduction">
+            <h2>📚 Introduction to KNN</h2>
+            
+            <p><strong>K-Nearest Neighbors (KNN)</strong> is a fundamental supervised learning algorithm used in machine learning.</p>
+
+            <div class="card">
+                <div class="card-title">Key Characteristics</div>
+                <ul>
+                    <li><strong>Supervised Learning:</strong> Works with labeled training data</li>
+                    <li><strong>Classification & Regression:</strong> Can solve both types of problems</li>
+                    <li><strong>Lazy Learning:</strong> No explicit model building during training</li>
+                    <li><strong>Instance-based:</strong> Stores all training data for predictions</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Simple Idea</div>
+                <p>
+                    <em>"To classify a new point, look at the K closest data points in the training set and let them vote."</em>
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">How KNN Works at a Glance</div>
+                <ol>
+                    <li>Store the training data (no model building)</li>
+                    <li>For a new point, calculate distance to all training points</li>
+                    <li>Find the K nearest neighbors</li>
+                    <li>Let them vote (majority wins for classification)</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Intuition -->
+        <section id="intuition">
+            <h2>💡 Basic Intuition with Example</h2>
+            
+            <div class="card">
+                <div class="card-title">Imagine a 2D Plane with Email Classification</div>
+                <ul>
+                    <li><strong style="color: #FF6B6B;">🔴 Red points</strong> = Spam emails</li>
+                    <li><strong style="color: #2196F3;">🔵 Blue points</strong> = Not spam emails</li>
+                    <li><strong style="color: #FFD700;">🟡 Yellow point</strong> = New email to classify</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Classification Process (K=5)</div>
+                <ol>
+                    <li>Calculate distance from yellow point to all red and blue points</li>
+                    <li>Find the 5 nearest points to yellow point</li>
+                    <li>Count labels: 3 red (Spam) + 2 blue (Not spam)</li>
+                    <li><strong>Result:</strong> Yellow point is classified as <span style="color: #FF6B6B;">SPAM</span> (majority vote)</li>
+                </ol>
+            </div>
+
+            <div class="viz-box">
+                <p><strong>KNN Classification Visualization</strong></p>
+                <img src="https://user-gen-media-assets.s3.amazonaws.com/gemini_images/87c632de-fb51-4f80-91b0-b1189ed460dd.png" alt="KNN Visualization">
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">The concentric circles show K=3 (inner) and K=8 (outer) neighborhood radii around the query point</p>
+            </div>
+        </section>
+
+        <!-- Algorithm Steps -->
+        <section id="algorithm">
+            <h2>⚙️ KNN Algorithm Steps</h2>
+
+            <div class="algorithm-box">
+                <strong>INPUT:</strong><br>
+                • Training set: (x₁, y₁), (x₂, y₂), …, (xₙ, yₙ)<br>
+                • New point: x_query<br>
+                • K: number of neighbors<br>
+                <br>
+                <strong>STEPS:</strong><br>
+                1. Compute distance between x_query and every training sample xᵢ<br>
+                2. Sort all training samples by increasing distance<br>
+                3. Select K nearest neighbors<br>
+                4. For <strong>classification:</strong> Count labels among K neighbors → Output majority label<br>
+                5. For <strong>regression:</strong> Take average of target values → Output average as prediction<br>
+                <br>
+                <strong>OUTPUT:</strong> Predicted class label or continuous value
+            </div>
+
+           
+
+        <!-- Distance Metrics -->
+        <section id="distance">
+            <h2>📏 Distance Metrics</h2>
+
+            <p>The choice of distance metric is critical in KNN. Here are the most common ones:</p>
+
+            <!-- Euclidean -->
+            <div class="card">
+                <div class="card-title">1️⃣ Euclidean Distance (Most Common)</div>
+                <div class="formula-box">
+                    <div class="formula-title">Formula:</div>
+                    <div class="formula">d(x, z) = √[Σ(xⱼ - zⱼ)²]</div>
+                    <div style="margin-top: 15px; font-size: 0.95em; color: #555;">
+                        For 2D: d = √[(x₁ - z₁)² + (x₂ - z₂)²]
+                    </div>
+                </div>
+                <p>✅ <strong>Use when:</strong> Features are in continuous, numerical space (most common case)</p>
+                <p>📌 <strong>Intuition:</strong> Straight-line distance (as the crow flies)</p>
+            </div>
+
+            <!-- Manhattan -->
+            <div class="card">
+                <div class="card-title">2️⃣ Manhattan Distance (Taxicab Distance)</div>
+                <div class="formula-box">
+                    <div class="formula-title">Formula:</div>
+                    <div class="formula">d(x, z) = Σ|xⱼ - zⱼ|</div>
+                    <div style="margin-top: 15px; font-size: 0.95em; color: #555;">
+                        For 2D: d = |x₁ - z₁| + |x₂ - z₂|
+                    </div>
+                </div>
+                <p>✅ <strong>Use when:</strong> Movement is restricted to grid-like paths (city blocks)</p>
+                <p>📌 <strong>Intuition:</strong> Distance traveling along streets in a city grid</p>
+            </div>
+
+            <!-- Minkowski -->
+            <div class="card">
+                <div class="card-title">3️⃣ Minkowski Distance (Generalized Form)</div>
+                <div class="formula-box">
+                    <div class="formula-title">Formula:</div>
+                    <div class="formula">d(x, z) = (Σ|xⱼ - zⱼ|ᵖ)^(1/p)</div>
+                    <div style="margin-top: 15px; font-size: 0.95em; color: #555;">
+                        • When p = 2 → Euclidean Distance<br>
+                        • When p = 1 → Manhattan Distance<br>
+                        • When p → ∞ → Chebyshev Distance
+                    </div>
+                </div>
+                <p>✅ <strong>Use when:</strong> You want flexibility in distance calculation</p>
+                <p>📌 <strong>Intuition:</strong> General family that includes Euclidean and Manhattan</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚠️ Important: Feature Scaling</div>
+                <p><strong>Problem:</strong> If features have different scales, large-scale features dominate!</p>
+                <p><strong>Example:</strong></p>
+                <ul>
+                    <li>Feature 1: Age (0–100)</li>
+                    <li>Feature 2: Salary (0–100,000)</li>
+                </ul>
+                <p><strong>Solution:</strong> Scale features before using KNN</p>
+                <div class="formula-box">
+                    <div class="formula-title">Min-Max Normalization:</div>
+                    <div class="formula">x' = (x - x_min) / (x_max - x_min)</div>
+                </div>
+                <div class="formula-box">
+                    <div class="formula-title">Standardization (Z-Score):</div>
+                    <div class="formula">x' = (x - μ) / σ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Choosing K -->
+        
+            <div class="interactive-demo">
+                <p><strong>KNN Behavior with Different K Values</strong></p>
+                <table>
+                    <tr>
+                        <th>K Value</th>
+                        <th>Bias</th>
+                        <th>Variance</th>
+                        <th>Decision Boundary</th>
+                    </tr>
+                    <tr>
+                        <td>K = 1</td>
+                        <td>Very Low</td>
+                        <td>Very High</td>
+                        <td>Very Jagged (overfits)</td>
+                    </tr>
+                    <tr>
+                        <td>K = 3-5</td>
+                        <td>Low</td>
+                        <td>High</td>
+                        <td>Detailed</td>
+                    </tr>
+                    <tr>
+                        <td>K = 10-15</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                        <td>Balanced ⭐</td>
+                    </tr>
+                    <tr>
+                        <td>K = 50+</td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>Very Smooth</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Advantages -->
+        <section id="advantages">
+            <h2>✅ Advantages of KNN</h2>
+
+            <div class="advantage-box">
+                <strong>1. Simple </strong>
+                <p>Easy to understand and explain to non-technical people. Just "count votes from neighbors"!</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>2. No Training Phase</strong>
+                <p>Unlike other algorithms, KNN doesn't build a model. Just store the data and you're ready!</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>3. Non-Parametric</strong>
+                <p>No fixed number of parameters. Can model complex, non-linear decision boundaries.</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>4. Multi-Class Support</strong>
+                <p>Naturally handles multi-class classification without any modifications.</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>5. Adaptive to New Data</strong>
+                <p>Easy to update predictions with new training data. Just add it to the dataset!</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>6. Works with Any Data Type</strong>
+                <p>Can handle numerical, categorical, and mixed data with appropriate distance metrics.</p>
+            </div>
+
+            <div class="advantage-box">
+                <strong>7. Regression Support</strong>
+                <p>Not just for classification—KNN can predict continuous values too!</p>
+            </div>
+        </section>
+
+        <!-- Disadvantages -->
+        <section id="disadvantages">
+            <h2>❌ Disadvantages of KNN</h2>
+
+            <div class="disadvantage-box">
+                <strong>1. Slow Prediction Time</strong>
+                <p>Must calculate distance to ALL training points for each prediction. Time: O(N × d) per query.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>2. High Memory Usage</strong>
+                <p>Stores the entire training dataset. For large datasets, this is impractical.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>3. Sensitive to Irrelevant Features</strong>
+                <p>All features contribute equally to distance. Irrelevant features can distort results.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>4. Curse of Dimensionality</strong>
+                <p>In high dimensions, all points become equally distant. KNN performance degrades in high dimensions.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>5. Sensitive to Feature Scaling</strong>
+                <p>Must scale features properly, otherwise large-scale features dominate distance calculations.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>6. Hyperparameter Tuning</strong>
+                <p>Performance depends heavily on K and distance metric choice. Poor choices → poor results.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>7. Imbalanced Data Issues</strong>
+                <p>If classes are imbalanced, majority class can bias predictions.</p>
+            </div>
+
+            <div class="disadvantage-box">
+                <strong>8. No Interpretability</strong>
+                <p>Hard to explain WHY a prediction was made (black-box nature).</p>
+            </div>
+        </section>
+
+        <!-- Applications -->
+        <section id="applications">
+            <h2>🎯 Real-World Applications of KNN</h2>
+
+            <div class="card">
+                <div class="card-title">1. 🖼️ Handwritten Digit Recognition</div>
+                <p>Classify handwritten digits (0-9) using feature vectors. Used in postal code reading systems.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">2. 💬 Recommendation Systems</div>
+                <p>Find similar users or items. Example: Netflix recommends movies similar to ones you liked.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">3. 🏥 Medical Diagnosis</div>
+                <p>Classify diseases based on patient symptoms and medical history. K similar patients' diagnoses help classify new patient.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">4. 🚨 Anomaly & Outlier Detection</div>
+                <p>Points far from any neighbors are identified as anomalies/outliers. Useful for fraud detection.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">5. 📊 Image Classification</div>
+                <p>Classify images based on feature vectors (e.g., embeddings from deep learning models).</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">6. 💰 Credit Risk Assessment</div>
+                <p>Classify loan applicants as high/low risk based on similar historical cases.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">7. 🌐 Text Classification</div>
+                <p>Classify documents/emails as spam/not-spam based on feature vectors from text.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">8. 🏠 Real Estate Valuation</div>
+                <p>Estimate house prices using regression KNN on similar properties.</p>
+            </div>
+        </section>
+
+        
+
+            
+
+            <!-- Code Example -->
+            <section id="practice">
+  <h2>🚀 Improvements & Practice</h2>
+
+  <div class="card">
+    <div class="card-title">💻 Python Implementation (scikit-learn)</div>
+
+    <p><strong>Classification Example:</strong></p>
+    <div class="code-box">
+<pre><code>from sklearn.datasets import load_iris
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# 0. Load a sample dataset (Iris)
+iris = load_iris()
+X = iris.data          # features
+y = iris.target        # labels
+
+# 1. Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 2. Scale features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 3. Create KNN classifier
+knn = KNeighborsClassifier(n_neighbors=5, metric="euclidean")
+
+# 4. Train (just store data)
+knn.fit(X_train_scaled, y_train)
+
+# 5. Predict
+y_pred = knn.predict(X_test_scaled)
+
+# 6. Evaluate
+print("Accuracy:", accuracy_score(y_test, y_pred))
+</code></pre>
+    </div>
+
+    <p><strong>Regression Example:</strong></p>
+    <div class="code-box">
+<pre><code>from sklearn.datasets import load_diabetes
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+# 0. Load a sample regression dataset
+data = load_diabetes()
+X = data.data      # features
+y = data.target    # continuous target
+
+# 1. Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 2. Scale features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# 3. Create KNN regressor
+knn_reg = KNeighborsRegressor(n_neighbors=5, metric="euclidean")
+
+# 4. Train
+knn_reg.fit(X_train_scaled, y_train)
+
+# 5. Predict
+y_pred = knn_reg.predict(X_test_scaled)
+
+# 6. Evaluate
+mse = mean_squared_error(y_test, y_pred)
+print("MSE:", mse)
+</code></pre>
+    </div>
+  </div>
+</section>
+
+
+        <!-- Summary -->
+        <section id="summary">
+            <h2>📖 Summary & Key Takeaways</h2>
+
+            <div class="card">
+                <div class="card-title">What is KNN?</div>
+                <ul>
+                    <li>A <strong>simple, instance-based, supervised learning</strong> algorithm</li>
+                    <li>Works for both <strong>classification and regression</strong></li>
+                    <li>Uses <strong>distance metrics</strong> to find similar data points</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">How Does It Work?</div>
+                <ul>
+                    <li>Store all training data (lazy learner)</li>
+                    <li>For prediction, find K nearest neighbors</li>
+                    <li>Majority vote (classification) or average (regression)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Distance Metrics</div>
+                <ul>
+                    <li>🎯 <strong>Euclidean:</strong> Straight-line distance (most common)</li>
+                    <li>🏙️ <strong>Manhattan:</strong> Grid-based distance</li>
+                    <li>📊 <strong>Minkowski:</strong> Generalized form (p-parameter)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Choosing K</div>
+                <ul>
+                    <li><strong>Small K:</strong> Low bias, high variance, sensitive to noise</li>
+                    <li><strong>Large K:</strong> High bias, low variance, smoother boundaries</li>
+                    <li><strong>Best:</strong> Use cross-validation to find optimal K</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">When to Use KNN?</div>
+                <ul>
+                    <li>✅ Small to medium-sized datasets</li>
+                    <li>✅ Low-dimensional data</li>
+                    <li>✅ Non-linear decision boundaries needed</li>
+                    <li>❌ Large datasets (slow prediction)</li>
+                    <li>❌ High-dimensional data (curse of dimensionality)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Advantages vs Disadvantages</div>
+                <table>
+                    <tr>
+                        <th>Advantages</th>
+                        <th>Disadvantages</th>
+                    </tr>
+                    <tr>
+                        <td>Simple</td>
+                        <td>Slow prediction time</td>
+                    </tr>
+                    <tr>
+                        <td>No training phase</td>
+                        <td>High memory usage</td>
+                    </tr>
+                    <tr>
+                        <td>Handles complex boundaries</td>
+                        <td>Curse of dimensionality</td>
+                    </tr>
+                    <tr>
+                        <td>Works with any data</td>
+                        <td>Feature scaling required</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Q&A Section -->
+       <section class="doubt-section" id="qa">
+  <div class="doubt-bg">
+    <div class="doubt-overlay">
+      <h2>any doubts ?</h2>
+    </div>
+  </div>
+</section>
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 KNN Algorithm Seminar | B.Tech CSE StudentS DHEERAJ & SANTHOSH | Interactive Learning Platform</p>
+        <p>Built with ❤️ for Machine Learning Enthusiasts</p>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">↑</div>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll to top button
+        const scrollTop = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('show');
+            } else {
+                scrollTop.classList.remove('show');
+            }
+        });
+
+        scrollTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideIn 0.6s ease';
+                }
+            });
+        });
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
