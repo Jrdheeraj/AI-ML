@@ -644,19 +644,6 @@ nav a:hover {
                 <p><strong>Use when:</strong> Movement is restricted to grid-like paths (city blocks)</p>
                 <p><strong>Intuition:</strong> Distance traveling along streets in a city grid</p>
             </div>
-
-            <!-- Minkowski -->
-            <div class="card">
-                <div class="card-title">3️⃣ Minkowski Distance (Generalized Form)</div>
-                <div class="formula-box">
-                    <div class="formula-title">Formula:</div>
-                    <div class="formula">d(x, z) = (Σ|xⱼ - zⱼ|ᵖ)^(1/p)</div>
-                    <div style="margin-top: 15px; font-size: 0.95em; color: #555;">
-                        • When p = 2 → Euclidean Distance<br>
-                        • When p = 1 → Manhattan Distance<br>
-                        • When p → ∞ → Chebyshev Distance
-                    </div>
-                </div>
                 <p><strong>Use when:</strong> You want flexibility in distance calculation</p>
                 <p><strong>Intuition:</strong> General family that includes Euclidean and Manhattan</p>
             </div>
@@ -726,6 +713,7 @@ nav a:hover {
         <!-- Disadvantages -->
         <section id="disadvantages">
             <h2>Disadvantages of KNN</h2>
+
 
             <div class="disadvantage-box">
                 <strong>1. Slow Prediction Time</strong>
@@ -863,39 +851,51 @@ print("Accuracy:", accuracy_score(y_test, y_pred))
 
     <p><strong>Regression Example:</strong></p>
     <div class="code-box">
-<pre><code>from sklearn.datasets import load_diabetes
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.preprocessing import StandardScaler
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
-# 0. Load a sample regression dataset
-data = load_diabetes()
-X = data.data      # features
-y = data.target    # continuous target
+# House size in square feet
+X = np.array([
+    [500], [800], [1000], [1200], [1500],
+    [1800], [2000], [2200], [2500], [3000]
+])
 
-# 1. Split data
+# House price in lakhs
+y = np.array([20, 30, 40, 50, 65, 80, 95, 110, 130, 160])
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X, y, test_size=0.3, random_state=42
 )
 
-# 2. Scale features
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
+knn = KNeighborsRegressor(
+    n_neighbors=3,      # number of nearest houses
+    metric='minkowski',
+    p=2                 # Euclidean distance
+)
+knn.fit(X_train_scaled, y_train)
+y_pred = knn.predict(X_test_scaled)
 
-# 3. Create KNN regressor
-knn_reg = KNeighborsRegressor(n_neighbors=5, metric="euclidean")
-
-# 4. Train
-knn_reg.fit(X_train_scaled, y_train)
-
-# 5. Predict
-y_pred = knn_reg.predict(X_test_scaled)
-
-# 6. Evaluate
 mse = mean_squared_error(y_test, y_pred)
-print("MSE:", mse)
+r2 = r2_score(y_test, y_pred)
+
+print("Actual Prices     :", y_test)
+print("Predicted Prices  :", y_pred)
+print("Mean Squared Error:", mse)
+print("R2 Score          :", r2)
+
+plt.figure()
+plt.scatter(X_test, y_test)
+plt.scatter(X_test, y_pred)
+plt.xlabel("House Size (sqft)")
+plt.ylabel("House Price (Lakhs)")
+plt.title("KNN Regression - House Price Prediction")
+plt.show()
 </code></pre>
     </div>
   </div>
@@ -929,7 +929,6 @@ print("MSE:", mse)
                 <ul>
                     <li><strong>Euclidean:</strong> Straight-line distance (most common)</li>
                     <li><strong>Manhattan:</strong> Grid-based distance</li>
-                    <li><strong>Minkowski:</strong> Generalized form (p-parameter)</li>
                 </ul>
             </div>
 

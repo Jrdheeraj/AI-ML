@@ -5,12 +5,12 @@ from sklearn.neighbors import KNeighborsClassifier
 
 # 1. Create synthetic dataset (2D for visualization)
 X, y = make_classification(
-    n_samples=555, n_features=2, n_classes=2,
+    n_samples=257, n_features=2, n_classes=2,
     n_clusters_per_class=1, n_redundant=0, random_state=42
 )
 
 # 2. Train KNN classifier
-knn = KNeighborsClassifier(n_neighbors=10)
+knn = KNeighborsClassifier(n_neighbors=15)
 knn.fit(X, y)
 
 # 3. Create mesh grid for plotting decision boundary
@@ -26,7 +26,7 @@ Z = Z.reshape(xx.shape)
 # 5. Plot decision boundary and data points
 plt.contourf(xx, yy, Z, alpha=0.3, cmap=plt.cm.coolwarm)
 plt.scatter(X[:, 0], X[:, 1], c=y, edgecolor='k', cmap=plt.cm.coolwarm)
-plt.title("KNN Classification (k=10)")
+plt.title("KNN Classification (k=15)")
 plt.xlabel("Feature 1")
 plt.ylabel("Feature 2")
 plt.show()
